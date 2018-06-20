@@ -21,10 +21,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as! UINavigationController
         navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
         splitViewController.delegate = self
-
+       
+        
+        let detailcontroller = navigationController.viewControllers[0] as! DetailViewController
+        
         let masterNavigationController = splitViewController.viewControllers[0] as! UINavigationController
         let controller = masterNavigationController.topViewController as! MasterViewController
+        print("condt", self.persistentContainer.viewContext)
+        detailcontroller.managedObjectContext = self.persistentContainer.viewContext
+         print("cjsd", self.persistentContainer.viewContext)
+        print("contreoll", detailcontroller)
         controller.managedObjectContext = self.persistentContainer.viewContext
+        print("condt", detailcontroller.managedObjectContext!)
+     
         return true
     }
 
@@ -64,7 +73,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return false
     }
     // MARK: - Core Data stack
-
+    //core data for pokemons
     lazy var persistentContainer: NSPersistentContainer = {
         /*
          The persistent container for the application. This implementation

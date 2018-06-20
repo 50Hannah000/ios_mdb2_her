@@ -14,7 +14,9 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     var detailViewController: DetailViewController? = nil
     var managedObjectContext: NSManagedObjectContext? = nil
     var dataService = DataService()
-    var pokemons: [PokemonObject] = []
+    var pokemonObjects: [PokemonObject] = []
+    var pokemons: [Pokemon] = []
+    var page: Int = 2
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,20 +42,56 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     //
     private func fetchPokemons() {
-        dataService.getPokemons(limit: 20, page: 1) { (pokemon) in
-            self.pokemons.append(pokemon!)
+    
+        var count = 0
+        do {
+            count = try managedObjectContext!.count(for: Pokemon.fetchRequest())
+            
+        } catch {
+            fatalError("Failure to save context: \(error)")
+        }
+        if(count == 0) {
+            print("count is 0, dus page ophalen")
+            self.page = 1
+        }
+            print("page" + String(self.page))
+            dataService.getPokemons(limit: 20, page: self.page) { (pokemon) in
+            self.pokemonObjects.append(pokemon!)
+            print(pokemon!)
+            self.preparePokemons(pokemonObject: pokemon!)
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
-            print(pokemon)
         }
+    }
+    
+    private func preparePokemons(pokemonObject: PokemonObject){
+        let newPokemon = NSEntityDescription.insertNewObject(forEntityName: "Pokemon", into: managedObjectContext!) as! Pokemon
+        
+        newPokemon.name = (pokemonObject.forms[0] as Forms).name
+        newPokemon.id = pokemonObject.id
+        newPokemon.base_experience = pokemonObject.base_experience
+        
+        do {
+            pokemons.append(newPokemon)
+            print("appending pokes")
+            if(self.page == 1){
+            print("saving")
+            try managedObjectContext!.save()
+            }
+        } catch {
+            fatalError("Failure to save context: \(error)")
+        }
+
     }
     // MARK: - Segues
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
+                print(indexPath)
             let object = fetchedResultsController.object(at: indexPath)
+                print("lalala", object)
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
                 controller.detailItem = object
                 controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
@@ -65,7 +103,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     // MARK: - Table View
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -74,7 +112,12 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        cell.textLabel!.text = String((pokemons[indexPath.row].forms[0] as Forms).name)
+        let pokemon = fetchedResultsController.object(at: indexPath)
+//        if(indexPath.row == (pokemons.count - 1)){
+//            self.page = self.page + 1
+//            self.fetchPokemons()
+//        }
+        configureCell(cell, withPokemon: pokemon)
         return cell
     }
 
@@ -99,25 +142,24 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         }
     }
 
-    func configureCell(_ cell: UITableViewCell, withEvent pokemon: PokemonObject) {
-        cell.textLabel!.text = (pokemon.forms[0] as Forms).name
-//            String((pokemons[indexPath.row].forms[0] as Forms).name)
+    func configureCell(_ cell: UITableViewCell, withPokemon pokemon: Pokemon) {
+        cell.textLabel!.text = pokemon.name
     }
 
     // MARK: - Fetched results controller
     
-    var fetchedResultsController: NSFetchedResultsController<PokemonObject> {
+    var fetchedResultsController: NSFetchedResultsController<Pokemon> {
         if _fetchedResultsController != nil {
             return _fetchedResultsController!
         }
         
-        let fetchRequest: NSFetchRequest<PokemonObject> = PokemonObject.fetchRequest()
+        let fetchRequest: NSFetchRequest<Pokemon> = Pokemon.fetchRequest()
         
         // Set the batch size to a suitable number.
         fetchRequest.fetchBatchSize = 20
         
         // Edit the sort key as appropriate.
-        let sortDescriptor = NSSortDescriptor(key: "pokemon", ascending: false)
+        let sortDescriptor = NSSortDescriptor(key: "name", ascending: false)
         
         fetchRequest.sortDescriptors = [sortDescriptor]
         
@@ -138,7 +180,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         
         return _fetchedResultsController!
     }    
-    var _fetchedResultsController: NSFetchedResultsController<PokemonObject>? = nil
+    var _fetchedResultsController: NSFetchedResultsController<Pokemon>? = nil
 
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
@@ -162,9 +204,9 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
             case .delete:
                 tableView.deleteRows(at: [indexPath!], with: .fade)
             case .update:
-                configureCell(tableView.cellForRow(at: indexPath!)!, withPokemon: anObject as! PokemonObject)
+                configureCell(tableView.cellForRow(at: indexPath!)!, withPokemon: anObject as! Pokemon)
             case .move:
-                configureCell(tableView.cellForRow(at: indexPath!)!, withPokemon: anObject as! PokemonObject)
+                configureCell(tableView.cellForRow(at: indexPath!)!, withPokemon: anObject as! Pokemon)
                 tableView.moveRow(at: indexPath!, to: newIndexPath!)
         }
     }
