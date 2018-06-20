@@ -46,16 +46,13 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         var count = 0
         do {
             count = try managedObjectContext!.count(for: Pokemon.fetchRequest())
-            
         } catch {
             fatalError("Failure to save context: \(error)")
         }
         if(count == 0) {
-            print("count is 0, dus page ophalen")
             self.page = 1
         }
-            print("page" + String(self.page))
-            dataService.getPokemons(limit: 20, page: self.page) { (pokemon) in
+            dataService.getPokemons(page: self.page) { (pokemon) in
             self.pokemonObjects.append(pokemon!)
             print(pokemon!)
             self.preparePokemons(pokemonObject: pokemon!)
@@ -84,16 +81,27 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         }
 
     }
+    
+   
+    override func tableView(_ tableView: UITableView,
+                            willDisplay cell: UITableViewCell,
+                            forRowAt indexPath: IndexPath) {
+        print(indexPath.row, self.pokemons.count-1)
+        if indexPath.row == self.pokemons.count-1 {
+            self.page = self.page + 1
+            self.fetchPokemons()
+        }
+    }
+    
     // MARK: - Segues
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
-                print(indexPath)
-            let object = fetchedResultsController.object(at: indexPath)
-                print("lalala", object)
+                let object = fetchedResultsController.object(at: indexPath)
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
                 controller.detailItem = object
+                controller.managedObjectContext = managedObjectContext
                 controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
                 controller.navigationItem.leftItemsSupplementBackButton = true
             }
@@ -103,20 +111,17 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     // MARK: - Table View
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return fetchedResultsController.sections?.count ?? 0
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return pokemons.count
+        let sectionInfo = fetchedResultsController.sections![section]
+        return sectionInfo.numberOfObjects
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let pokemon = fetchedResultsController.object(at: indexPath)
-//        if(indexPath.row == (pokemons.count - 1)){
-//            self.page = self.page + 1
-//            self.fetchPokemons()
-//        }
         configureCell(cell, withPokemon: pokemon)
         return cell
     }
@@ -159,8 +164,8 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         fetchRequest.fetchBatchSize = 20
         
         // Edit the sort key as appropriate.
-        let sortDescriptor = NSSortDescriptor(key: "name", ascending: false)
-        
+        let sortDescriptor = NSSortDescriptor(key: "id", ascending: true)
+
         fetchRequest.sortDescriptors = [sortDescriptor]
         
         // Edit the section name key path and cache name if appropriate.

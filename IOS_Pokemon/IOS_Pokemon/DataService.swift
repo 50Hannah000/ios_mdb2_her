@@ -29,8 +29,7 @@ func getPokemon(id: Int, urlString: String, completion: @escaping (PokemonObject
     let newUrlString = (urlString == "") ? urlString : self.baseUrl;
     getDataFromUrl(url: URL(string: newUrlString + String(id))!) { (data, res, err) in
         guard let pokemon = try? JSONDecoder().decode(PokemonObject.self, from: data!) else {
-            print(data)
-      
+
             print("Error: Couldn't decode data into pokemon")
             return
         }
@@ -38,11 +37,11 @@ func getPokemon(id: Int, urlString: String, completion: @escaping (PokemonObject
     }
 }
 
-public func getPokemons(limit: Int, page: Int, completion: @escaping (PokemonObject?) -> ()) {
-    let offset = limit * page - limit
+public func getPokemons(page: Int, completion: @escaping (PokemonObject?) -> ()) {
+    let offset = 20 * page - 20 + 1
     let url = (baseUrl + "?offset=" + String(offset))
     var _: [PokemonObject] = []
-    for index in offset...(offset+limit) {
+    for index in offset...(offset+19) {
         self.getPokemon(id: index, urlString: url) { (pokemon) in
             self.pokemons.append(pokemon!)
             completion(pokemon)

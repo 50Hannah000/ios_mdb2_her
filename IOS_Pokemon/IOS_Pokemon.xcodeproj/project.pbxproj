@@ -16,6 +16,7 @@
 		BB1D0B6120D82A1F000D0F56 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D0B6020D82A1F000D0F56 /* DataService.swift */; };
 		BBE5AC3B20D9510B00789D61 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1D0B4C20D7F620000D0F56 /* MasterViewController.swift */; };
 		BBE5AC3E20D9A01200789D61 /* IOS_Pokemon.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBE5AC3C20D9A01200789D61 /* IOS_Pokemon.xcdatamodeld */; };
+		BBE5AC4520DAF83700789D61 /* CaughtPokemonsTableTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE5AC4420DAF83700789D61 /* CaughtPokemonsTableTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		BB1D0B5E20D82A11000D0F56 /* Pokemon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pokemon.swift; sourceTree = "<group>"; };
 		BB1D0B6020D82A1F000D0F56 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 		BBE5AC3D20D9A01200789D61 /* IOS_Pokemon.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = IOS_Pokemon.xcdatamodel; sourceTree = "<group>"; };
+		BBE5AC4420DAF83700789D61 /* CaughtPokemonsTableTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaughtPokemonsTableTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 				BB1D0B5820D7F620000D0F56 /* Info.plist */,
 				BB1D0B5E20D82A11000D0F56 /* Pokemon.swift */,
 				BB1D0B6020D82A1F000D0F56 /* DataService.swift */,
+				BBE5AC4420DAF83700789D61 /* CaughtPokemonsTableTableViewController.swift */,
 			);
 			path = IOS_Pokemon;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 				BB1D0B4820D7F620000D0F56 /* AppDelegate.swift in Sources */,
 				BBE5AC3B20D9510B00789D61 /* MasterViewController.swift in Sources */,
 				BB1D0B6120D82A1F000D0F56 /* DataService.swift in Sources */,
+				BBE5AC4520DAF83700789D61 /* CaughtPokemonsTableTableViewController.swift in Sources */,
 				BB1D0B4F20D7F620000D0F56 /* DetailViewController.swift in Sources */,
 				BBE5AC3E20D9A01200789D61 /* IOS_Pokemon.xcdatamodeld in Sources */,
 			);
