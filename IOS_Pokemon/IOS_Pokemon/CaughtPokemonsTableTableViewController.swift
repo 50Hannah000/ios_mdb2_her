@@ -42,10 +42,6 @@ class CaughtPokemonsTableTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let catchedPokemon = fetchedResultsController.object(at: indexPath)
-        //        if(indexPath.row == (pokemons.count - 1)){
-        //            self.page = self.page + 1
-        //            self.fetchPokemons()
-        //        }
         configureCell(cell, withPokemon: catchedPokemon)
         return cell
     }

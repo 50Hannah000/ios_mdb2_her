@@ -24,21 +24,9 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         // Do any additional setup after loading the view, typically from a nib.
         navigationItem.leftBarButtonItem = editButtonItem
         
-        let pokemonsButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: Selector(("displayPokemons:")))
-        navigationItem.rightBarButtonItem = pokemonsButton
-        navigationItem.rightBarButtonItem?.title = "Pokemons"
-        
-        
         if let split = splitViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
-        }
-    }
-    
-    func displayPokemons(sender: UIBarButtonItem) {
-        DispatchQueue.main.async {
-            self.performSegue(withIdentifier: "showCaughtPokemons", sender: self)
-
         }
     }
 
@@ -52,11 +40,10 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         // Dispose of any resources that can be recreated.
     }
 
-    //
+    //fetch pokemons from dataservice
     private func fetchPokemons() {
-    
         self.checkStartPage()
-        if(self.page < 4) {
+        if(self.page < 3) {
             dataService.getPokemons(page: self.page) { (pokemon) in
                 self.pokemonObjects.append(pokemon!)
                 print(pokemon!)
@@ -80,6 +67,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         }
     }
     
+    //prepare pokemons as entity
     private func preparePokemons(pokemonObject: PokemonObject){
         let newPokemon = NSEntityDescription.insertNewObject(forEntityName: "Pokemon", into: managedObjectContext!) as! Pokemon
         
@@ -96,17 +84,6 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
             fatalError("Failure to save context: \(error)")
         }
 
-    }
-    
-   
-    override func tableView(_ tableView: UITableView,
-                            willDisplay cell: UITableViewCell,
-                            forRowAt indexPath: IndexPath) {
-        print(indexPath.row, self.pokemons.count-1)
-        if indexPath.row == self.pokemons.count-1 {
-            self.page = self.page + 1
-            self.fetchPokemons()
-        }
     }
     
     // MARK: - Segues
@@ -126,6 +103,16 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     // MARK: - Table View
 
+    override func tableView(_ tableView: UITableView,
+                            willDisplay cell: UITableViewCell,
+                            forRowAt indexPath: IndexPath) {
+        print(indexPath.row, self.pokemons.count-1)
+        if indexPath.row == self.pokemons.count-1 {
+            self.page = self.page + 1
+            self.fetchPokemons()
+        }
+    }
+    
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
@@ -150,7 +137,10 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let context = fetchedResultsController.managedObjectContext
-            context.delete(fetchedResultsController.object(at: indexPath))
+            DispatchQueue.main.async {
+                context.delete(self.fetchedResultsController.object(at: indexPath))
+            }
+            
                 
             do {
                 try context.save()

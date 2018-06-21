@@ -77,13 +77,10 @@ class DetailViewController: UIViewController {
         chance = baseExp > 125 ? chance - 20 : chance;
         chance = baseExp > 200 ? chance - 10 : chance;
         
-        print("chand", chance)
         if(Int(arc4random_uniform(100)) > chance) {
             displayCatch()
             return
         }
-        print("manamgae", managedObjectContext!)
-        print("pokee", pokemonToCatch)
         let caughtPokemon = NSEntityDescription.insertNewObject(forEntityName: "CaughtPokemon", into: managedObjectContext!) as! CaughtPokemon
         caughtPokemon.name = pokemonToCatch.name
         caughtPokemon.id = pokemonToCatch.id
