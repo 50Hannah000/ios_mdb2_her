@@ -23,10 +23,22 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         self.fetchPokemons()
         // Do any additional setup after loading the view, typically from a nib.
         navigationItem.leftBarButtonItem = editButtonItem
-
+        
+        let pokemonsButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: Selector(("displayPokemons:")))
+        navigationItem.rightBarButtonItem = pokemonsButton
+        navigationItem.rightBarButtonItem?.title = "Pokemons"
+        
+        
         if let split = splitViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
+        }
+    }
+    
+    func displayPokemons(sender: UIBarButtonItem) {
+        DispatchQueue.main.async {
+            self.performSegue(withIdentifier: "showCaughtPokemons", sender: self)
+
         }
     }
 
@@ -43,6 +55,20 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     //
     private func fetchPokemons() {
     
+        self.checkStartPage()
+        if(self.page < 4) {
+            dataService.getPokemons(page: self.page) { (pokemon) in
+                self.pokemonObjects.append(pokemon!)
+                print(pokemon!)
+                self.preparePokemons(pokemonObject: pokemon!)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+        }
+    }
+    
+    private func checkStartPage() {
         var count = 0
         do {
             count = try managedObjectContext!.count(for: Pokemon.fetchRequest())
@@ -51,14 +77,6 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         }
         if(count == 0) {
             self.page = 1
-        }
-            dataService.getPokemons(page: self.page) { (pokemon) in
-            self.pokemonObjects.append(pokemon!)
-            print(pokemon!)
-            self.preparePokemons(pokemonObject: pokemon!)
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
         }
     }
     
@@ -71,9 +89,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         
         do {
             pokemons.append(newPokemon)
-            print("appending pokes")
             if(self.page == 1){
-            print("saving")
             try managedObjectContext!.save()
             }
         } catch {
